@@ -1,98 +1,71 @@
 package ejercicioVocales;
 
+import com.sun.tools.javac.Main;
+
 import java.io.*;
 
 public class principal {
-
-    private static final String ARCHIVO_ENTRADA = "C:\\Users\\astrid\\IdeaProjects\\vocales.txt";
-    private static final String CLASSPATH = "C:\\Users\\astrid\\IdeaProjects\\ProgramacionProcesos\\out\\production\\ProgramacionProcesos";
+    private static final String JAVA = "java";
+    private static final String CP = "-cp";
+    private static final String[] VOCALES = {"a","e","i","o","u"};
     private static final String CLASE = "ejercicioVocales.ContadorVocales";
+    private static final String EXTENSION = ".txt";
     public static void main(String[] args) {
-        char[] vocales = {'a', 'e', 'i', 'o', 'u'};
+        //uso system.getProperty("user.dir") que Obtiene la ruta del directorio de trabajo actual del programa Java.
+        //y lo guardo en mi nuevo file
+        File file = new File(System.getProperty("user.dir"));
+        CrearCarpetaArchivosYtxt(file);
+        String CLASSPATH = file.getAbsolutePath() + "\\out\\production\\ProgramacionProcesos";
 
-        File directorioTrabajo = new File(System.getProperty("user.dir"));
-        System.out.println("Directorio de trabajo (padre): " + directorioTrabajo.getAbsolutePath());
-
-        // Carpeta donde guardaremos salidas
-        File carpetaSalidas = new File(directorioTrabajo, "salidas");
-        if (!carpetaSalidas.exists()) {
-            if (carpetaSalidas.mkdirs()) {
-                System.out.println("Creada carpeta de salidas: " + carpetaSalidas.getAbsolutePath());
-            } else {
-                System.err.println("No se pudo crear carpeta de salidas: " + carpetaSalidas.getAbsolutePath());
-            }
-        }
-
-        String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-        Process[] procesos = new Process[vocales.length];
-
-        // Lanzar procesos
-        for (int i = 0; i < vocales.length; i++) {
-            char v = vocales[i];
-            File archivoSalida = new File(carpetaSalidas, "salida_" + v + ".txt");
+        System.out.println("Classpath: " + CLASSPATH);
+        String ARCHIVO = file.getAbsolutePath()+"\\src\\archivos\\vocales.txt";
+        String SALIDA = file.getAbsolutePath()+"\\src\\archivos\\salida\\";
+        System.out.println("Salida: " + SALIDA);
+        System.out.println("Archivo: " + ARCHIVO);
+        //creo carpeta de salida de archivos
+        for (int i = 0; i < VOCALES.length; i++) {
+            ProcessBuilder pb = new ProcessBuilder(JAVA, CP, CLASSPATH, CLASE, VOCALES[i], ARCHIVO);
+            pb.redirectOutput(new File(SALIDA + VOCALES[i] + EXTENSION));
+            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
             try {
-                ProcessBuilder pb = new ProcessBuilder(
-                        javaBin,
-                        "-cp", CLASSPATH,
-                        CLASE,
-                        String.valueOf(v),
-                        ARCHIVO_ENTRADA,
-                        archivoSalida.getAbsolutePath() // PASAMOS ruta absoluta de salida
-                );
-                pb.directory(new File(CLASSPATH)); // asegurar mismo working dir
-                pb.redirectErrorStream(true);    // combinar stderr en stdout
-                Process p = pb.start();
-                procesos[i] = p;
-
-                // Leer salida del proceso (no bloqueante)
-                logStream(p.getInputStream(), "proc-" + v);
-
+                pb.start();
             } catch (IOException e) {
-                System.err.println("Error al iniciar proceso para '" + v + "': " + e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 
-        // Esperar a que todos terminen
-        for (int i = 0; i < procesos.length; i++) {
-            try {
-                if (procesos[i] != null) {
-                    int codigo = procesos[i].waitFor();
-                    System.out.println("Proceso " + vocales[i] + " finalizó con código: " + codigo);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        System.out.println("Finalizado el conteo de vocales.");
 
-        // Leer archivos de salida (ruta absoluta)
-        System.out.println("=== RESULTADOS ===");
-        for (char v : vocales) {
-            File f = new File("C:\\Users\\astrid\\IdeaProjects\\salidas\\", "salida_" + v + ".txt");
-            if (!f.exists()) {
-                System.err.println(v + ": archivo NO encontrado -> " + f.getAbsolutePath());
-                continue;
-            }
-            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-                String contenido = br.readLine();
-                System.out.println(v + ": " + contenido + "  (archivo: " + f.getAbsolutePath() + ")");
-            } catch (IOException e) {
-                System.err.println("Error leyendo " + f.getAbsolutePath() + ": " + e.getMessage());
-            }
-        }
+
+
     }
-
-    // Método auxiliar para imprimir la salida del proceso en consola
-    private static void logStream(final InputStream is, final String prefix) {
-        new Thread(() -> {
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(is))) {
-                String line;
-                while ((line = r.readLine()) != null) {
-                    System.out.println(prefix + ": " + line);
+    //creo un metodo que me cree la carpeta archivos en el directorio de trabajo
+    public static void CrearCarpetaArchivosYtxt(File newFile){
+        //obtengo el directorio padre de este archivo
+        File Carpeta= new File(newFile,"src/archivos");
+        //creo la carpeta si no existe
+        if(!Carpeta.exists()){
+            if (Carpeta.mkdir()) {
+                System.out.println("Carpeta creada en: " + Carpeta.getAbsolutePath());
+                //creo carpeta de salida
+                File CarpetaSalida= new File(Carpeta,"salida");
+                if(!CarpetaSalida.exists()){
+                    CarpetaSalida.mkdir();
                 }
-            } catch (IOException e) {
-                System.err.println("Error leyendo stream de " + prefix + ": " + e.getMessage());
             }
-        }).start();
+            try{
+                //creo el archivo solo se crea si la carpeta es nueva
+                File archivotxt= new File(Carpeta,"vocales.txt");
+                if(archivotxt.createNewFile()){
+                    System.out.println("archivo txt creado exitosamente");
+                }
+            }catch (Exception e){}
+
+        }else {
+            System.out.println("la carpeta ya existe");
+        }
+
+
+
     }
 }

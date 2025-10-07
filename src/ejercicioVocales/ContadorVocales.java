@@ -1,55 +1,50 @@
 package ejercicioVocales;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ContadorVocales {
 
-    //cuantas veces aparece la vocal
-    public static int contar(String texto, char vocal) {
-        int contador = 0;
-        for (char c : texto.toCharArray()) {
-            if (Character.toLowerCase(c) == Character.toLowerCase(vocal)) {
-                contador++;
-            }
-        }
-        return contador;
+    public static final Map<Character,Character> VOCALES;
+
+    static{
+        VOCALES = new HashMap();
+        VOCALES.put('a','á');
+        VOCALES.put('e','é');
+        VOCALES.put('i','í');
+        VOCALES.put('o','ó');
+        VOCALES.put('u','ú');
     }
-    public static void main(String[] args) {
-        if (args.length < 3) {
-            System.out.println("Uso: java ContadorVocales <vocal> <archivoEntrada> <archivoSalida>");
-            return;
-        }
 
-        char vocal = args[0].charAt(0);
-        String archivoEntrada = args[1];
-
-        try {
-            // Detectar carpeta base del archivo de entrada
-            File entrada = new File(archivoEntrada);
-            File carpetaBase = entrada.getParentFile(); // carpeta donde está vocales.txt
-
-            // Crear carpeta "salidas" dentro de esa carpeta base
-            File carpetaSalidas = new File(carpetaBase, "salidas");
-            if (!carpetaSalidas.exists()) {
-                carpetaSalidas.mkdirs();
+    public void contarVocales(char vocal, String archivo) {
+        int contador = 0;
+        try (BufferedReader in = new BufferedReader( new FileReader(archivo))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                line = line.toLowerCase();
+                for (int i = 0; i < line.length(); i++) {
+                    if (line.charAt(i) == vocal || line.charAt(i) == VOCALES.get(vocal) )
+                        contador++;
+                }
             }
 
-            // Crear archivo de salida dentro de esa carpeta
-            File archivoSalida = new File(carpetaSalidas, "salida_" + vocal + ".txt");
-
-            // Leer texto
-            String texto = new String(java.nio.file.Files.readAllBytes(entrada.toPath()));
-            int cantidad = contar(texto, vocal);
-
-            // Escribir resultado
-            try (PrintWriter pw = new PrintWriter(new FileWriter(archivoSalida))) {
-                pw.println(cantidad);
-            }
-
-            System.out.println("[" + vocal + "] -> " + cantidad + " guardado en " + archivoSalida.getAbsolutePath());
-
+        } catch (FileNotFoundException e) {
+            System.err.println("Archivo no encontrado: " + archivo);
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error en lectura de archivo: " + archivo);
+            throw new RuntimeException(e);
         }
+
+        System.out.println(contador);
+
+    }
+
+
+    public static void main(String[] args) {
+
+        ContadorVocales test = new ContadorVocales();
+        test.contarVocales(args[0].charAt(0),args[1]);
     }
 }
