@@ -22,6 +22,7 @@ public class principal {
         String SALIDA = file.getAbsolutePath()+"\\src\\archivos\\salida\\";
         System.out.println("Salida: " + SALIDA);
         System.out.println("Archivo: " + ARCHIVO);
+        //a
         //creo carpeta de salida de archivos
         for (int i = 0; i < VOCALES.length; i++) {
             ProcessBuilder pb = new ProcessBuilder(JAVA, CP, CLASSPATH, CLASE, VOCALES[i], ARCHIVO);

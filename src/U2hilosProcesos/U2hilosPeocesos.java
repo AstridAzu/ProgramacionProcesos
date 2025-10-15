@@ -19,9 +19,14 @@ public class U2hilosPeocesos {
         //uso system.getProperty("user.dir") que Obtiene la ruta del directorio de trabajo actual del programa Java.
         //y lo guardo en mi nuevo file
         File file = new File(System.getProperty("user.dir"));
-        CrearCarpetaArchivosYtxt(file);
+
 
         String ARCHIVO = file.getAbsolutePath()+"\\src\\archivos\\vocales.txt";
+        String SALIDA = file.getAbsolutePath()+"\\src\\archivos\\salida\\";
+        File NewFile = new File(SALIDA);
+        if (!NewFile.exists()) {
+            NewFile.mkdirs();
+        }
         System.out.println("Archivo: " + ARCHIVO);
         System.out.println();
 
@@ -45,9 +50,15 @@ public class U2hilosPeocesos {
             try {
                 thread.join(); // Espera a que el thread termine
                 System.out.println("Thread " + thread.getName() + " finalizado");
+
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+        //creo los archivos de txt
+        for (Thread thread : threads) {
+
         }
 
         System.out.println("\nFinalizado el conteo de vocales.");

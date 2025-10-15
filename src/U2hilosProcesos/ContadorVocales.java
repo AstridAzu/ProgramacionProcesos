@@ -9,7 +9,8 @@ import java.util.Map;
 public class ContadorVocales implements Runnable {
 
     public static final Map<Character,Character> VOCALES;
-
+    File file = new File(System.getProperty("user.dir"));
+    String SALIDA = file.getAbsolutePath()+"\\src\\archivos\\salida\\";
     private char vocal;
     private String archivo;
 
@@ -32,7 +33,7 @@ public class ContadorVocales implements Runnable {
     public void run() {
         // Mostrar información del thread
         Thread threadActual = Thread.currentThread();
-        System.out.println("Nombre Thread: " + threadActual.getName()+ " | Vocal: " + vocal );
+        System.out.println("Nombre Thread: " +  vocal );
         System.out.println("el ID del thread es: " + threadActual.getId());
         contarVocales();
     }
@@ -56,7 +57,13 @@ public class ContadorVocales implements Runnable {
             System.err.println("Error en lectura de archivo: " + archivo);
             throw new RuntimeException(e);
         }
+        //creo los archivos txt de cada letra
 
+        File txt=new File(SALIDA+vocal+".txt");
+        try{
+            FileWriter fileWriter=new FileWriter(txt, false);
+            fileWriter.write(contador);
+        }catch(Exception e){}
         System.out.println("Vocal '" + vocal + "' - Total: " + contador);
     }
 
