@@ -13,6 +13,7 @@ public class CondicionDeCarreraAtomicVars {
         contador.addAndGet(num);
     }
 
+
     public static int getContador(){
         return contador.get();
     }
