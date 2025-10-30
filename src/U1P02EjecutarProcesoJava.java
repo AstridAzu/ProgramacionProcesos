@@ -8,6 +8,7 @@ public class U1P02EjecutarProcesoJava {
     private static final String VERSION = "-version";
 
     public static void main(String[] args) {
+
         ProcessBuilder pb = new ProcessBuilder(JAVA, VERSION);
         // 1. Redirect la salida de la información que hereda del proceso hijo
         // pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);

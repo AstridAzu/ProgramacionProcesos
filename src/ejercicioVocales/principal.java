@@ -16,12 +16,12 @@ public class principal {
         File file = new File(System.getProperty("user.dir"));
         CrearCarpetaArchivosYtxt(file);
         String CLASSPATH = file.getAbsolutePath() + "\\out\\production\\ProgramacionProcesos";
-
-        System.out.println("Classpath: " + CLASSPATH);
         String ARCHIVO = file.getAbsolutePath()+"\\src\\archivos\\vocales.txt";
         String SALIDA = file.getAbsolutePath()+"\\src\\archivos\\salida\\";
+
         System.out.println("Salida: " + SALIDA);
         System.out.println("Archivo: " + ARCHIVO);
+        System.out.println("Classpath: " + CLASSPATH);
         //a
         //creo carpeta de salida de archivos
         for (int i = 0; i < VOCALES.length; i++) {
@@ -36,9 +36,6 @@ public class principal {
         }
 
         System.out.println("Finalizado el conteo de vocales.");
-
-
-
     }
     //creo un metodo que me cree la carpeta archivos en el directorio de trabajo
     public static void CrearCarpetaArchivosYtxt(File newFile){
@@ -65,8 +62,5 @@ public class principal {
         }else {
             System.out.println("la carpeta ya existe");
         }
-
-
-
     }
 }
