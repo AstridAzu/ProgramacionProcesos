@@ -1,11 +1,12 @@
-package ValidacionDePuertos;
+package CreacionSoker;
+
 
 import java.io.*;
 import java.net.Socket;
 
 public class EchoClient {
     public static void main(String[] args) {
-        try(Socket socket = new Socket("localhost", 3000)){
+        try(Socket socket = new Socket("localhost", 8000)){
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
@@ -20,4 +21,3 @@ public class EchoClient {
         System.out.println("Comunicación finalizada");
     }
 }
-
