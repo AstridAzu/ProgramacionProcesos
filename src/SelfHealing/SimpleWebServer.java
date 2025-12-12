@@ -7,11 +7,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SimpleWebServer {
 
-    private static final String HTML_1 = """
+    private static final String HTML = """
             <html>
                 <head>
                     <title>Servidor web simple</title>
@@ -19,21 +21,23 @@ public class SimpleWebServer {
                 <body>
                     <h1>¡Hola mundo!</h1>
                     <p>Esto es un servidor web simple.</p>
-                    <p>Eres el visitante Nº: """;
-    private static final String HTML_2 = """
-                </p>
+                    <p>%s</p>
                 </body>
-            </html>
-            """;
+            </html>""";
+
     private static final int PUERTO = 8080;
+    private static final String NOMBRE_SERVIDOR = "Servidor Web Simple";
     private static AtomicInteger contador = new AtomicInteger();
+    private static final String HTTP_ESTADO_OKAY = "200 OK";
+    private static final String HTTP_ESTADO_NOT_FOUND = "404 Not Found";
+    private static final String HTTP_ESTADO_NOT_ALLOWED = "405 Method Not Allowed";
+    private static final DateTimeFormatter FECHA_ACTUAL = DateTimeFormatter.ofPattern("dd/MM/yyy HH:mm:ss");
 
     public static void main(String[] args) {
         try (ServerSocket svs = new ServerSocket(PUERTO)) {
             System.out.println("Servidor escuchando en el puerto " + PUERTO);
             while (true) {
                 Socket socket = svs.accept();
-                contador.incrementAndGet();
                 Thread t = new Thread(() -> atenderSolicitud(socket));
                 t.start();
             }
@@ -47,20 +51,55 @@ public class SimpleWebServer {
              PrintWriter pw = new PrintWriter(socket.getOutputStream())) {
             String linea;
             linea = br.readLine();
-            System.out.println(linea);
+            if (linea != null && !linea.isBlank()) {
+                System.out.println(linea);
+                String[] partes = linea.split("\\s");
+                String metodo = partes[0];
+                String ruta = partes.length > 1 ? partes[1].trim().toLowerCase() : "/";
 
-            System.out.println("Devolviendo respuesta HTML: ");
-            StringBuffer respuesta = new StringBuffer();
-            respuesta.append(HTML_1).append(contador.get()).append(HTML_2);
-            pw.println("HTTP/1.1 200 OK");
-            pw.println("Content-Type: text/html;charset=UTF-8");
-            pw.println("Content-Length: " + respuesta.toString().getBytes().length);
-            pw.println();
-            pw.println(respuesta.toString());
+                while ((linea = br.readLine()) != null && !linea.isBlank()) {
+                    System.out.println(linea);
+                }
+                String estado = HTTP_ESTADO_OKAY;
+                String respuesta = "";
+                if (metodo.trim().equalsIgnoreCase("get")) {
+                    // Desechar solicitudes GET del favicon
+                    if (ruta.contains("favicon")) {
+                        contador.incrementAndGet(); // Solo contabilizamos la visita si es de tipo GET y la ruta no incluye favicon
+                    }
+                    System.out.println("Devolviendo respuesta HTML: ");
 
-            pw.flush();
+                    estado = HTTP_ESTADO_OKAY;
+                    respuesta = switch (ruta) {
+                        case "/" -> "Eres el visitante número: " + contador.incrementAndGet();
+                        case "/fecha", "/fecha/" ->
+                                "Fecha y hora actuales: " + FECHA_ACTUAL.format(LocalDateTime.now());
+                        case "/nombre", "/nombre/" -> "El nombre del servidor es: " + NOMBRE_SERVIDOR;
+                        default -> {
+                            estado = HTTP_ESTADO_NOT_FOUND;
+                            yield "Error: ruta no permitida";
+                        }
+                    };
+                } else {
+                    estado = HTTP_ESTADO_NOT_ALLOWED;
+                    respuesta = "Error: método no permitido";
+                }
+                devolverRespuesta(pw, estado, respuesta);
+            }
         } catch (IOException e) {
             System.err.println("Error en el servidor " + e.getMessage());
         }
+    }
+
+    private static void devolverRespuesta(PrintWriter pw, String estado, String mensaje) {
+        StringBuffer respuesta = new StringBuffer();
+        respuesta.append(String.format(HTML, mensaje));
+        pw.println("HTTP/1.1 " + estado);
+        pw.println("Content-Type: text/html;charset=UTF-8");
+        pw.println("Content-Length: " + respuesta.toString().getBytes().length);
+        pw.println();
+        pw.println(respuesta.toString());
+
+        pw.flush();
     }
 }
