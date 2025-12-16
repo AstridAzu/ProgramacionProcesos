@@ -19,7 +19,6 @@ public class EchoServerMultiCliente {
         }
         try (ServerSocket servidor = new ServerSocket(puerto)) {
             System.out.println("Servidor MULTICLIENTE escuchando en el puerto: " + puerto);
-
             // Bucle infinito para aceptar clientes
             while (true) {
                 Socket socket = servidor.accept();
@@ -46,15 +45,17 @@ class ManejadorCliente extends Thread {
         System.out.println("[" + Thread.currentThread().getName() + "]"+" Cliente conectado: "  + socket.getInetAddress());
 
         try {
+            //recibe inputs
             BufferedReader bf = new BufferedReader(
                     new InputStreamReader(socket.getInputStream())
             );
-
+            //imprime imputs
             PrintWriter pw = new PrintWriter(
                     socket.getOutputStream(), true
             );
 
             String mensaje;
+            //lee linea a linea hasta que ya no haya que leer
             while ((mensaje = bf.readLine()) != null) {
                 System.out.println("[" + Thread.currentThread().getName() + "] Recibido de cliente: " + mensaje);
                 pw.println(mensaje.toLowerCase());

@@ -3,7 +3,7 @@ package CreacionSoker;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
-
+//no funciona
 public class EchoClientMultiHilo {
 
     public static void main(String[] args) {
@@ -13,7 +13,6 @@ public class EchoClientMultiHilo {
         // Mensajes escritos por el usuario ANTES de crear clientes
         System.out.print("Mensaje para Cliente 1: ");
         String mensaje1 = sc.nextLine();
-
         System.out.print("Mensaje para Cliente 2: ");
         String mensaje2 = sc.nextLine();
         System.out.print("Mensaje para Cliente 3: ");
@@ -27,7 +26,6 @@ public class EchoClientMultiHilo {
         Runnable cliente4 = () -> ejecutarCliente(mensaje4);
 
         new Thread(cliente1).start();
-
         new Thread(cliente2).start();
         new Thread(cliente3).start();
         new Thread(cliente4).start();

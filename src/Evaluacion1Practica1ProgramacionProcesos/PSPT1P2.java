@@ -1,4 +1,5 @@
 package Evaluacion1Practica1ProgramacionProcesos;
+
 public class PSPT1P2 {
     static class Impresora {
         /**
